@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<style type='text/css'>
+DT
+{
+  font-family: monospace;
+}
+</style>
+<title>test</title>
+
+<h1>Comments</h1>
+
+<!-- This is (obviously) a normal XHTML comment.  This will be copied to the resulting HTML and 
+     can therefore be viewed by users -->
+
+{-- This is a redletter comment and will not be copied to the resulting HTML.  Use these for
+    code comments that should not be viewed by users.  In fact, most comments are not viewed by
+    users, so use these whenever possible to reduce your resulting HTML size. --}
+
+<div>Before the comment</div>
+{--
+ If lines contain only comments, the lines are removed completely, including trailing spaces
+ and linefeeds, so that the resulting HTML doesn't include blank lines.  This can be important
+ if you have comments at the top of a file before the doctype or before Python code blocks that
+ monkey with headers, etc.
+
+ This means the two lines 'before' and 'after' should not be separated in the output from this
+ template.
+--}
+<div>After the comment</div>
+
+{-- The following forces a break in the static text.  We want the triple quote test to be in
+    its own block --}
+%{ }
+<h1>Quotes</h1>
+
+<p>The generated Python code uses triple quotes, so make sure that text containing triple
+quotes doesn't cause errors.  These quotes: abc'''def should end up being escaped.</p>
+%{ }
+
+<h1>Filters</h1>
+
+<h2>esc</h2>
+
+<p>Performs HTML/XHTML/XML escaping, converting &amp;, &gt;, and &lt to entities.</p>
+
+%{ var = '(a & b > c)' }
+%{ filtered = filter_esc(var) }
+<pre>
+var = '${var | esc}'
+&#36;{var|esc} &rArr; ${filtered | esc}
+&#36;{var|e} &rArr; ${filtered | e}
+</pre>
+
+<h2>attr</h2>
+<p>Performs escaping for HTML/XHTML/XML attributes.  This is the same as <code>esc</code>
+except it also escapes the double quote character.
+
+%{ var = '(a & b "> c")' }
+%{ filtered = filter_attr(var) }
+<pre>
+var = '${var | esc}'
+&lt;a href="&#36;{var|attr}" /&gt; &rArr; &lt;a href="${filtered | esc}" /&gt;
+&lt;a href="&#36;{var|a}" /&gt; &rArr; &lt;a href="${filtered | esc}" /&gt;
+</pre>
+</dd>
+
+<h2>quote</h2>
+<p>Similar to <code>attr</code>, but also adds quotes around the value.  This makes attributes
+slightly cleaner since the quotes do not need to be provided in the template itself.</p>
+
+%{ var = 'value' }
+%{ filtered = filter_quote(var) }
+<pre>
+var = '${var | esc}'
+&lt;a href=&#36;{var|q} /&gt; &rArr; &lt;a href=${filtered | esc} /&gt;
+</pre>
+
+<p>If the value contains only one type of quote, the surrounding quotes will be set to the
+other type so that no escaping is necessary.  If the value contains both single and double
+quotes, one type will be chosen and escaped.
+
+%{ var = 'has "some" quotes' }
+%{ filtered = filter_quote(var) }
+<pre>
+var = '${var | esc}'
+&lt;a href=&#36;{var|q} /&gt; &rArr; &lt;a href=${filtered | esc} /&gt;
+</pre>
+
+%{ var = """has "both" 'quotes'""" }
+%{ filtered = filter_quote(var) }
+<pre>
+var = """${var | esc}"""
+&lt;a href=&#36;{var|q} /&gt; &rArr; &lt;a href=${filtered | esc} /&gt;
+</pre>
+
+%{ var = 'value <"with"> quotes' }
+%{ filtered = filter_quote(var) }
+<pre>
+var = '${var | esc}'
+&lt;a href=&#36;{var|quote} /&gt; &rArr; &lt;a href=${filtered | esc} /&gt;
+&lt;a href=&#36;{var|q} /&gt; &rArr; &lt;a href=${filtered | esc} /&gt;
+</pre>
+
+<h2>url</h2>
+<p>Encodes a value to be used as a parameter in a URL.</p>
+
+%{ var = 'http://example.com/page?value=ab' }
+%{ filtered = filter_url(var) }
+<pre>
+var = '${var | esc}'
+&lt;a href="http://localhost?url=&#36;{var|url}" /&gt; &rArr; &lt;a href="http://localhost?url=${filtered | esc}" /&gt;
+&lt;a href="http://localhost?url=&#36;{var|u}" /&gt; &rArr; &lt;a href="http://localhost?url=${filtered | esc}" /&gt;
+</pre>
+
+
+<h2>Filter Order</h2>
+
+<p>Filters must be applied in the order they appear.</p>
+
+<p>In the first example, quotes will be added by the <code>quote</code> filter, and then those
+quotes will be url escaped by the <code>url</code> filter.
+
+<pre>
+%{ var = 'testing' }
+var = 'testing'
+&#36;{var|quote|url} &rArr; ${var|q|u}
+</pre>
+
+<p>In this second example, we'll reverse the order of the filters.  Since there are no special
+URL characters, the <code>url</code> filter will note change anything.  Afterwards,
+the <code>quote</code> filter will add quotes.
+
+<pre>
+&#36;{var|url|quote} &rArr; ${var|u|q}
+</pre>
+
+<h1>None</h1>
+
+<p>None is automatically turned into a blank string.</p>
+
+%{ var = None }
+
+<pre>
+var = None
+&#36;{var} &rArr; ${var}
+&#36;{var|e} &rArr; ${var|e}
+&#36;{var|a} &rArr; ${var|a}
+</pre>
+
+</body>
+</html>

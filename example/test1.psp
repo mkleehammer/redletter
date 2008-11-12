@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<style type='text/css'>
+</style>
+<title>test</title>
+
+<h1>Comments</h1>
+
+<!-- This is (obviously) a normal XHTML comment.  This will be copied to the resulting HTML and 
+     can therefore be viewed by users -->
+
+{-- This is a redletter comment and will not be copied to the resulting HTML.  Use these for
+    code comments that should not be viewed by users.  In fact, most comments are not viewed by
+    users, so use these whenever possible to reduce your resulting HTML size. --}
+
+<div>Before the comment</div>
+{--
+ If lines contain only comments, the lines are removed completely, including trailing spaces
+ and linefeeds, so that the resulting HTML doesn't include blank lines.  This can be important
+ if you have comments at the top of a file before the doctype or before Python code blocks that
+ monkey with headers, etc.
+
+ This means the two lines 'before' and 'after' should not be separated in the output from this
+ template.
+--}
+<div>After the comment</div>
+
+<h1>Variables</h1>
+
+<h2>Simple Variables</h2>
+
+<p>Variables in a template are provided by the code that executes the template.  For example,
+the code calling this template provided the variable <code>var</code>, using code like:</p>
+
+<pre>
+  template.executev(out, var='testing')
+</pre>
+
+<p>To use the variable, we would use <code>&#36;{var}</code>, resulting in: ${var}</p>
+
+<p>Whitespace around the variable name is ignored, so you can also use <code>&#36;{ var }</code> 
+if it is more readable.  The result is the same: ${ var }.</p>
+
+<h2>Filters</h2>
+
+<p>You can also provide filters to modify variables.  Filters are functions that take a
+variable value and return the modified value.  Redletter provides one built-in filter
+called <code>esc</code> which escapes a value for use in HTML.  This is useful when values
+contain HTML special characters such as: &amp;, &lt; or &gt;.</p>
+
+<p>The code executing this template has provided a second variable, var2, with the value "a
+&amp; b".  Since the value contains an ampersand, it will need to be escaped using the esc
+filter.  To do so, use the syntax &#36;{var2 | esc} which is similar to the pipeline syntax of
+various shells: ${var2 | esc}.
+
+<div>
+  <p>Here we use the variable `var`: ${var}</p>
+  <p>This variable was provided by the code that ran this template.</p>
+</div>
+
+<div>
+  <p>If you really need to use a dollar and a brace, you are screwed :)</p>
+  <p> &#36;{just kidding}, use &amp;#36; to replace the dollar sign.</p>
+</div>
+
+<p>1</p>
+{-- This is a single-line comment that will not be copied to the HTML and should not leave a blank line --}
+<p>2</p>
+{-- This is a multi-line version. It shouldn't be in the HTML either. 
+    It also should not leave any blank lines.
+--}
+<p>3</p>
+
+{-- The following is a code block, meaning a chunk of Python code.  In this case, we create the
+    variable `z`.  --}
+%{ z = 'test&ing' }
+<p>4</p>
+
+
+{-- To use a variable
+
+${z|esc}
+
+%{ z = 'testing' }
+
+${z}
+
+<link rel="stylesheet" href="styles/global.css" type="text/css">
+<script type="text/javascript" src="js/admin.js"></script>
+
+<if 3>
+{%
+    x = 3
+    y = 4
+%}
+</if>
+
+<%-- The variable name `var` was provided by the setup.py script --%>
+<p>name ${var}</p>
+
+<style type="text/css">
+TEXTAREA
+{
+    font-family: verdana, arial, sans-serif;
+    width: 100%;
+}
+</style>
+
+</head>
+
+<body>
+
+<if 1>
+  <%@ include tabs.psp %>
+</if>
+
+<script type="text/javascript">
+tab_select('admintab', 'subnav-admintab-issues');
+</script>
+
+<div class="centered-main">
+
+</div>
+
+<%@ include footer.psp %>
+
+</body>
+</html>
